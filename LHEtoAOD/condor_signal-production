@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# Condor submission script to product signal events
+
+# Exit immediataly when an error occurs
+#set -e -o pipefail
+
+# Get names of different CMSSW environments
+cmssw_hadronization="${1}"
+cmssw_digitization="${2}"
+cmssw_reconstruction="${3}"
+cmssw_hltresim="${4}"
+cmssw_miniaod="${5}"
+process="${6}"
+outdir="${7}"_"$(printf "%05d\n" "${process}")"
+eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
+inputLHE=input$(printf "%05d\n" "${process}").lhe
+
+pwd="${PWD}"
+
+echo Hello Condor
+echo
+
+echo Date: $(date)
+echo Worker node: $(uname -a)
+echo Operating system: $(cat /etc/redhat-release)
+echo Working directory: "${pwd}"
+echo Output directory: "${outdir}"
+echo EOS output directory: "${eosoutdir}"
+echo Process number: "${process}"
+echo Input LHE file: "${inputLHE}"
+echo
+
+echo CMSSW version for hadronization: "${cmssw_hadronization}"
+echo CMSSW version for digitization: "${cmssw_digitization}"
+echo CMSSW version for reconstruction: "${cmssw_reconstruction}"
+echo CMSSW version for hltresim: "${cmssw_hltresim}"
+echo CMSSW version for miniaod: "${cmssw_miniaod}"
+echo
+
+echo Unpack tarball
+tar xf tarball_signal-production.tar.gz
+
+# Run all steps in subshells
+(
+    echo Run hadronization
+    cd "${cmssw_hadronization}"
+    scram b ProjectRename
+    cd src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_hadronization "${inputLHE}"
+)
+(
+    echo Run digitization
+    cd "${cmssw_digitization}"
+    scram b ProjectRename
+    cd src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_digitization
+)
+(
+    echo Run reconstruction
+    cd "${cmssw_reconstruction}"
+    scram b ProjectRename
+    cd src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_reconstruction
+)
+(
+    echo Run hltresim
+    cd "${cmssw_hltresim}"
+    scram b ProjectRename
+    cd src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_hltresim
+)
+(
+    echo Run miniaod
+    cd "${cmssw_miniaod}"
+    scram b ProjectRename
+    cd src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_miniaod
+)
+echo FIND
+find .
+echo FIND
+
+# Copy output to eos
+echo Copy output to eos.
+xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"
+for rootfile in *.root; do
+    echo Copy rootfile "${rootfile}".
+    # Since copying to eos often fails for no obvious reason, brute force the copy
+    for i in {1..100}; do
+        xrdcp -fs "${rootfile}" root://cmseos.fnal.gov/"${eosoutdir}"
+            && break \
+            || echo xrdcp try "${i}" for file "${rootfile}" failed.
+    done
+done
+
+echo Bye.
