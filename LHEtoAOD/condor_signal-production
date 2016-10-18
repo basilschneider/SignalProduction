@@ -98,7 +98,7 @@ for rootfile in *.root; do
     echo Copy rootfile "${rootfile}".
     # Since copying to eos often fails for no obvious reason, brute force the copy
     for i in {1..100}; do
-        xrdcp -fs "${rootfile}" root://cmseos.fnal.gov/"${eosoutdir}"
+        xrdcp -fs "${rootfile}" root://cmseos.fnal.gov/"${eosoutdir}" \
             && break \
             || echo xrdcp try "${i}" for file "${rootfile}" failed.
     done
