@@ -97,9 +97,6 @@ fi
     eval $(scram runtime -sh)
     ./cmsDriver_miniaod
 )
-echo FIND
-find .
-echo FIND
 
 # Copy output rootfiles to eos
 echo Copy output to eos.
