@@ -41,6 +41,14 @@ echo
 echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
 
+# Check if LHE file exists
+if [ ! -f "${cmssw_hadronization}"/src/"${inputLHE}" ]; then
+    echo LHE file "${inputLHE}" not found.
+    echo Abort.
+    exit
+fi
+
+
 # Run all steps in subshells
 (
     echo Run hadronization
