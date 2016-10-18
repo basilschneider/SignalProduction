@@ -5,14 +5,15 @@
 # Exit immediataly when an error occurs
 #set -e -o pipefail
 
-# Get names of different CMSSW environments
+# Get positional arguments
 cmssw_hadronization="${1}"
 cmssw_digitization="${2}"
 cmssw_reconstruction="${3}"
 cmssw_hltresim="${4}"
 cmssw_miniaod="${5}"
-process="${6}"
-outdir="${7}"_"$(printf "%05d\n" "${process}")"
+cluster="${7}"
+process="${8}"
+outdir="${6}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
 inputLHE=input$(printf "%05d\n" "${process}").lhe
 
@@ -27,8 +28,9 @@ echo Operating system: $(cat /etc/redhat-release)
 echo Working directory: "${pwd}"
 echo Output directory: "${outdir}"
 echo EOS output directory: "${eosoutdir}"
-echo Process number: "${process}"
 echo Input LHE file: "${inputLHE}"
+echo Process number: "${process}"
+echo Cluster number: "${cluster}"
 echo
 
 echo CMSSW version for hadronization: "${cmssw_hadronization}"
@@ -99,7 +101,7 @@ echo FIND
 find .
 echo FIND
 
-# Copy output to eos
+# Copy output rootfiles to eos
 echo Copy output to eos.
 xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"
 for rootfile in *.root; do
@@ -111,5 +113,15 @@ for rootfile in *.root; do
             || echo xrdcp try "${i}" for file "${rootfile}" failed.
     done
 done
+
+# Copy all config files into one folder and transfer to eos
+mkdir cfg
+cp "${cmssw_hadronization}"/src/hadronizer_cfg.py cfg/
+cp "${cmssw_digitization}"/src/digitization_cfg.py cfg/
+cp "${cmssw_reconstruction}"/src/reconstruction_cfg.py cfg/
+cp "${cmssw_hltresim}"/src/hltresim_cfg.py cfg/
+cp "${cmssw_miniaod}"/src/miniaod_cfg.py cfg/
+xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"/cfg/
+xrdcp -frs cfg root://cmseos.fnal.gov/"${eosoutdir}"/cfg/
 
 echo Bye.
