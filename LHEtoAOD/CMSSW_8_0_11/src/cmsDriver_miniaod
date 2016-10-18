@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+cmsDriver.py step1 \
+    --filein file:../../evts_7hlt.root \
+    --fileout file:../../evts_8aod.root \
+    --mc \
+    --eventcontent MINIAODSIM \
+    --runUnscheduled \
+    --datatier MINIAODSIM \
+    --conditions 80X_mcRun2_asymptotic_v14 \
+    --customise_commands "process.patTrigger.processName = cms.string('HLT2')" \
+    --step PAT \
+    --era Run2_2016 \
+    --python_filename miniaod_cfg.py \
+    --number=-1 \
+    --no_exec
+
+cmsRun miniaod_cfg.py
