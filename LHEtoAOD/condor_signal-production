@@ -15,7 +15,7 @@ cluster="${7}"
 process="${8}"
 outdir="${6}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
-inputLHE=input$(printf "%05d\n" "${process}").lhe
+inputLHE=lhe/input$(printf "%05d\n" "${process}").lhe
 
 pwd="${PWD}"
 
