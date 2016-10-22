@@ -40,6 +40,12 @@ echo CMSSW version for hltresim: "${cmssw_hltresim}"
 echo CMSSW version for miniaod: "${cmssw_miniaod}"
 echo
 
+# Create output dummy file that can be transferred back
+# HTCondor has a bug, it always needs to transfer at least one file back
+# This can cause it to overwrite stuff, so we just create a dummy file, that
+# happily can be transferred and overwritten
+touch condor_output_dummy
+
 echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
 
@@ -47,8 +53,6 @@ tar xf tarball_signal-production.tar.gz
 if [ ! -f "${cmssw_hadronization}"/src/"${inputLHE}" ]; then
     echo LHE file "${inputLHE}" not found.
     echo Abort.
-    # Clean up everything, otherwise condor will transfer it back
-    rm -rf *
     exit
 fi
 
@@ -122,8 +126,5 @@ cp "${cmssw_hltresim}"/src/hltresim_cfg.py cfg/
 cp "${cmssw_miniaod}"/src/miniaod_cfg.py cfg/
 xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"/cfg/
 xrdcp -frs cfg root://cmseos.fnal.gov/"${eosoutdir}"/cfg/
-
-# Clean up everything, otherwise condor will transfer it back
-rm -rf *
 
 echo Bye.
