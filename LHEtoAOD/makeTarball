@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Create tarball for signal production
+
+tar czf \
+    condor/tarball_signal-production.tar.gz \
+    CMSSW_7_1_20_patch3 \
+    CMSSW_8_0_11 \
+    CMSSW_8_0_3_patch2
