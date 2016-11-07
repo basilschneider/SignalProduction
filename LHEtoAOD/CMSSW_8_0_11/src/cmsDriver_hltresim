@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+step="HLT Resimulation"
+echo "Run ${step}."
+
 cmsDriver.py step1 \
     --filein file:../../evts_6rec.root \
     --fileout file:../../evts_7hlt.root \

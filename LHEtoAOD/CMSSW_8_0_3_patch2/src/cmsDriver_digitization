@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+step="Digitization"
+echo "Run ${step}."
+
 cmsDriver.py step1 \
     --filein file:../../evts_3sim.root \
     --fileout file:../../evts_5raw.root \

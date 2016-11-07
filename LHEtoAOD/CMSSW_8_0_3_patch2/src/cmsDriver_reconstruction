@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+step="Reconstruction"
+echo "Run ${step}."
+
 cmsDriver.py step2 \
     --filein file:../../evts_5raw.root \
     --fileout file:../../evts_6rec.root \

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+step="MiniAOD Production"
+echo "Run ${step}."
+
 cmsDriver.py step1 \
     --filein file:../../evts_7hlt.root \
     --fileout file:../../evts_8aod.root \
