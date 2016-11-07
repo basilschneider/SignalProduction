@@ -17,4 +17,8 @@ cmsDriver.py step2 \
     --number=-1 \
     --no_exec
 
+echo "Return value from ${step} config: $?"
+
 cmsRun reconstruction_cfg.py
+
+echo "Return value from ${step} cmsRun: $?"

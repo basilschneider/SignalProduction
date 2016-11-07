@@ -18,4 +18,8 @@ cmsDriver.py step1 \
     --number=-1 \
     --no_exec
 
+echo "Return value from ${step} config: $?"
+
 cmsRun miniaod_cfg.py
+
+echo "Return value from ${step} cmsRun: $?"

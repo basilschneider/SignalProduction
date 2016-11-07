@@ -23,6 +23,8 @@ cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/Hadronizer_TuneCUETP
     --number="${nEvents}" \
     --no_exec
 
+echo "Return value from ${step} config: $?"
+
 echo -n "Adding analysis specific lines... "
 
 sed -i "/SLHA:minMassSM/a \
@@ -44,3 +46,5 @@ sed -i "s/process\.pgen/&*process.lepfilter/" hadronizer_cfg.py
 echo "Done."
 
 cmsRun hadronizer_cfg.py
+
+echo "Return value from ${step} cmsRun: $?"
