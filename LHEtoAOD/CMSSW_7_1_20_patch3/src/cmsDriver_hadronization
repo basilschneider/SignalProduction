@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euf -o pipefail
+#set -euf -o pipefail
 
 inputfile="${1}"
 nEvents="${2:--1}"
