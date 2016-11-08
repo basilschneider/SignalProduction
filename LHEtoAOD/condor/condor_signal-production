@@ -59,7 +59,6 @@ fi
 
 # Run all steps in subshells
 (
-    echo Run hadronization
     cd "${cmssw_hadronization}"
     scram b ProjectRename
     cd src
@@ -68,7 +67,6 @@ fi
     ./cmsDriver_hadronization "${inputLHE}"
 )
 (
-    echo Run digitization
     cd "${cmssw_digitization}"
     scram b ProjectRename
     cd src
@@ -77,7 +75,6 @@ fi
     ./cmsDriver_digitization
 )
 (
-    echo Run reconstruction
     cd "${cmssw_reconstruction}"
     scram b ProjectRename
     cd src
@@ -86,7 +83,6 @@ fi
     ./cmsDriver_reconstruction
 )
 (
-    echo Run hltresim
     cd "${cmssw_hltresim}"
     scram b ProjectRename
     cd src
@@ -95,7 +91,6 @@ fi
     ./cmsDriver_hltresim
 )
 (
-    echo Run miniaod
     cd "${cmssw_miniaod}"
     scram b ProjectRename
     cd src
