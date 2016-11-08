@@ -19,8 +19,17 @@ cmsDriver.py step1 \
     --number=-1 \
     --no_exec
 
-echo "Return value from ${step} config: $?"
+return_value_config="$?"
 
 cmsRun digitization_cfg.py
 
-echo "Return value from ${step} cmsRun: $?"
+return_value_cmsRun="$?"
+echo "Return value from ${step} config: ${return_value_config}"
+echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
+
+# Return larger return value
+if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
+    return "${return_value_config}"
+else
+    return "${return_value_cmsRun}"
+fi
