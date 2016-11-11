@@ -42,7 +42,6 @@ LHEtoAOD/CMSSW_8_0_11/tmp
 LHEtoAOD/CMSSW_8_0_11/external
 SLHAtoLHE
 LHEtoAOD/CMSSW_7_1_20_patch3/src/Configuration/
-LHEtoAOD/CMSSW_7_1_20_patch3/src/lhe/
 LHEtoAOD/condor/condor_output_dummy
 LHEtoAOD/condor/tarball_signal-production.tar.gz
 LHEtoAOD/condor/logs/
