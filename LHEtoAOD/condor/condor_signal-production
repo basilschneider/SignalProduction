@@ -69,11 +69,11 @@ fi
 (
     i=0
     while true; do
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
         echo "Hadronization try number $(( ++i ))."
         cd "${cmssw_hadronization}"
         scram b ProjectRename
         cd src
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval $(scram runtime -sh)
         ./cmsDriver_hadronization "${inputLHE}"
         if [ $? -eq 0 ]; then
@@ -88,11 +88,11 @@ fi
 (
     i=0
     while true; do
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
         echo "Digitization try number $(( ++i ))."
         cd "${cmssw_digitization}"
         scram b ProjectRename
         cd src
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval $(scram runtime -sh)
         ./cmsDriver_digitization
         if [ $? -eq 0 ]; then
@@ -107,11 +107,11 @@ fi
 (
     i=0
     while true; do
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
         echo "Reconstruction try number $(( ++i ))."
         cd "${cmssw_reconstruction}"
         scram b ProjectRename
         cd src
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval $(scram runtime -sh)
         ./cmsDriver_reconstruction
         if [ $? -eq 0 ]; then
@@ -126,11 +126,11 @@ fi
 (
     i=0
     while true; do
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
         echo "HLT Resimulation try number $(( ++i ))."
         cd "${cmssw_hltresim}"
         scram b ProjectRename
         cd src
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval $(scram runtime -sh)
         ./cmsDriver_hltresim
         if [ $? -eq 0 ]; then
@@ -145,11 +145,11 @@ fi
 (
     i=0
     while true; do
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
         echo "MiniAOD Production try number $(( ++i ))."
         cd "${cmssw_miniaod}"
         scram b ProjectRename
         cd src
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval $(scram runtime -sh)
         ./cmsDriver_miniaod
         if [ $? -eq 0 ]; then
