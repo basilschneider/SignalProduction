@@ -4,6 +4,9 @@
 
 # Exit immediataly when an error occurs
 #set -e -o pipefail
+# Set global trap that exits even when in subshell
+set -E
+trap '[ "$?" -ne 999 ] || exit 999' ERR
 
 # Get positional arguments
 cmssw_hadronization="${1}"
@@ -57,46 +60,106 @@ if [ ! -f "${cmssw_hadronization}"/src/"${inputLHE}" ]; then
 fi
 
 
-# Run all steps in subshells
+# - Run all steps in subshells, to not confuse different CMSSW setups
+# - Run them in a loop until either the return value is 0 or the code has run
+#   ten times, to avoid timeout errors in DAS, but possibly other errors as well
+# - If the code ran 10 times without success, throw error code 999, which
+#   terminates the script altogether (see trap above)
+#   (see also here: http://unix.stackexchange.com/a/48550/58056)
 (
-    cd "${cmssw_hadronization}"
-    scram b ProjectRename
-    cd src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_hadronization "${inputLHE}"
+    i=0
+    while true; do
+        echo "Hadronization try number $(( ++i ))."
+        cd "${cmssw_hadronization}"
+        scram b ProjectRename
+        cd src
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval $(scram runtime -sh)
+        ./cmsDriver_hadronization "${inputLHE}"
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        if [ $i -ge 10 ]; then
+            echo "All tries failed. Exit."
+            exit 999
+        fi
+    done
 )
 (
-    cd "${cmssw_digitization}"
-    scram b ProjectRename
-    cd src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_digitization
+    i=0
+    while true; do
+        echo "Digitization try number $(( ++i ))."
+        cd "${cmssw_digitization}"
+        scram b ProjectRename
+        cd src
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval $(scram runtime -sh)
+        ./cmsDriver_digitization
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        if [ $i -ge 10 ]; then
+            echo "All tries failed. Exit."
+            exit 999
+        fi
+    done
 )
 (
-    cd "${cmssw_reconstruction}"
-    scram b ProjectRename
-    cd src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_reconstruction
+    i=0
+    while true; do
+        echo "Reconstruction try number $(( ++i ))."
+        cd "${cmssw_reconstruction}"
+        scram b ProjectRename
+        cd src
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval $(scram runtime -sh)
+        ./cmsDriver_reconstruction
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        if [ $i -ge 10 ]; then
+            echo "All tries failed. Exit."
+            exit 999
+        fi
+    done
 )
 (
-    cd "${cmssw_hltresim}"
-    scram b ProjectRename
-    cd src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_hltresim
+    i=0
+    while true; do
+        echo "HLT Resimulation try number $(( ++i ))."
+        cd "${cmssw_hltresim}"
+        scram b ProjectRename
+        cd src
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval $(scram runtime -sh)
+        ./cmsDriver_hltresim
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        if [ $i -ge 10 ]; then
+            echo "All tries failed. Exit."
+            exit 999
+        fi
+    done
 )
 (
-    cd "${cmssw_miniaod}"
-    scram b ProjectRename
-    cd src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_miniaod
+    i=0
+    while true; do
+        echo "MiniAOD Production try number $(( ++i ))."
+        cd "${cmssw_miniaod}"
+        scram b ProjectRename
+        cd src
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval $(scram runtime -sh)
+        ./cmsDriver_miniaod
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        if [ $i -ge 10 ]; then
+            echo "All tries failed. Exit."
+            exit 999
+        fi
+    done
 )
 
 # Copy output rootfiles to eos
