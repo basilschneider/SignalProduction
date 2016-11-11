@@ -19,6 +19,6 @@ generate p p > ewkinos ewkinos / excl
 generate p p > ewkinos ewkinos j / excl
 generate p p > ewkinos ewkinos j j / excl
 
-output higgsino
-#output higgsino -nojpeg
+#output higgsino
+output higgsino_300_120 -nojpeg
 

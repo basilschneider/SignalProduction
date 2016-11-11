@@ -9,8 +9,8 @@ Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Transfer_Output_Files = condor_output_dummy
 x509userproxy = $ENV(X509_USER_PROXY)
-Output = logs/c$(Cluster)/condor_$(Cluster).$(Process).stdout
-Error = logs/c$(Cluster)/condor_$(Cluster).$(Process).stderr
-Log = logs/c$(Cluster)/condor_$(Cluster).$(Process).condor
+Output = logs/condor_$(Cluster).$(Process).stdout
+Error = logs/condor_$(Cluster).$(Process).stderr
+Log = logs/condor_$(Cluster).$(Process).condor
 Arguments = CMSSW_7_1_20_patch3 CMSSW_8_0_3_patch2 CMSSW_8_0_3_patch2 CMSSW_8_0_11 CMSSW_8_0_11 higgsino_300_80_v2 $(Cluster) $(Process)
 Queue 100
