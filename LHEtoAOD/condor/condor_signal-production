@@ -14,11 +14,12 @@ cmssw_digitization="${2}"
 cmssw_reconstruction="${3}"
 cmssw_hltresim="${4}"
 cmssw_miniaod="${5}"
+name="${6}"
 cluster="${7}"
 process="${8}"
-outdir="${6}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
+outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
-inputLHE=lhe/input$(printf "%05d\n" "${process}").lhe
+inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d\n" "${process}").lhe
 
 pwd="${PWD}"
 
@@ -52,8 +53,9 @@ touch condor_output_dummy
 echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
 
-# Check if LHE file exists
-if [ ! -f "${cmssw_hadronization}"/src/"${inputLHE}" ]; then
+# Transfer lhe file
+xrdcp root://cmseos.fnal.gov/"${inputLHE}" input.lhe
+if [ "$?" -ne 0 ]; then
     echo LHE file "${inputLHE}" not found.
     echo Abort.
     exit
@@ -76,7 +78,7 @@ fi
         scram b ProjectRename
         cd src
         eval $(scram runtime -sh)
-        ./cmsDriver_hadronization "${inputLHE}"
+        ./cmsDriver_hadronization
         if [ $? -eq 0 ]; then
             break
         fi
