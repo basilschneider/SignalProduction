@@ -16,7 +16,7 @@ rm -f "${nameTarball}"
     cd CMSSW_7_1_20_patch3/src
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval $(scram runtime -sh)
-    ./cmsDriver_hadronization
+    ./cmsDriver_hadronization "${1}"
     if [ ! -f cfg_hadronization.py ]; then
         exit 1
     fi
