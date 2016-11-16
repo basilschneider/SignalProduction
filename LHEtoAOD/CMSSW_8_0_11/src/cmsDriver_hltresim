@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euf -o pipefail
+
 step="HLT Resimulation"
 echo "Run ${step}."
 
@@ -15,21 +17,6 @@ cmsDriver.py step1 \
     --customise_commands "process.AODSIMoutput.outputCommands.append('drop L1GlobalTriggerReadoutRecord_gtDigis_*_HLT2')" \
     --step L1REPACK:FullMC,HLT:25ns10e33_v2,RAW2DIGI:L1TRawToDigi \
     --era Run2_2016 \
-    --python_filename hltresim_cfg.py \
+    --python_filename cfg_hltresim.py \
     --number=-1 \
     --no_exec
-
-return_value_config="$?"
-
-cmsRun hltresim_cfg.py
-
-return_value_cmsRun="$?"
-echo "Return value from ${step} config: ${return_value_config}"
-echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
-
-# Return larger return value
-if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
-    exit "${return_value_config}"
-else
-    exit "${return_value_cmsRun}"
-fi

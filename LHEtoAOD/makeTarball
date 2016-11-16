@@ -2,8 +2,65 @@
 
 # Create tarball for signal production
 
+set -ef -o pipefail
+
+trap 'echo Failed to create tarball' ERR
+
+nameTarball=condor/tarball_signal-production.tar.gz
+
+# Delete old tarball
+rm -f "${nameTarball}"
+
+# Invoke each cmsDriver command to get the configs
+(
+    cd CMSSW_7_1_20_patch3/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_hadronization
+    if [ ! -f cfg_hadronization.py ]; then
+        exit 1
+    fi
+)
+(
+    cd CMSSW_8_0_3_patch2/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_digitization
+    if [ ! -f cfg_digitization.py ]; then
+        exit 1
+    fi
+)
+(
+    cd CMSSW_8_0_3_patch2/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_reconstruction
+    if [ ! -f cfg_reconstruction.py ]; then
+        exit 1
+    fi
+)
+(
+    cd CMSSW_8_0_11/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_hltresim
+    if [ ! -f cfg_hltresim.py ]; then
+        exit 1
+    fi
+)
+(
+    cd CMSSW_8_0_11/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_miniaod
+    if [ ! -f cfg_miniaod.py ]; then
+        exit 1
+    fi
+)
+
+# Create new tarball
 tar czf \
-    condor/tarball_signal-production.tar.gz \
+    "${nameTarball}" \
     CMSSW_7_1_20_patch3 \
     CMSSW_8_0_11 \
     CMSSW_8_0_3_patch2

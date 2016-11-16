@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euf -o pipefail
+
 step="Digitization"
 echo "Run ${step}."
 
@@ -15,21 +17,6 @@ cmsDriver.py step1 \
     --customise_commands "process.simHcalDigis.markAndPass = cms.bool(True)" \
     --step DIGI,L1,DIGI2RAW,HLT:@frozen25ns \
     --era Run2_25ns \
-    --python_filename digitization_cfg.py \
+    --python_filename cfg_digitization.py \
     --number=-1 \
     --no_exec
-
-return_value_config="$?"
-
-cmsRun digitization_cfg.py
-
-return_value_cmsRun="$?"
-echo "Return value from ${step} config: ${return_value_config}"
-echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
-
-# Return larger return value
-if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
-    exit "${return_value_config}"
-else
-    exit "${return_value_cmsRun}"
-fi

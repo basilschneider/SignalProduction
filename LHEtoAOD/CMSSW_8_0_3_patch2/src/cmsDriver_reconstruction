@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euf -o pipefail
+
 step="Reconstruction"
 echo "Run ${step}."
 
@@ -13,21 +15,6 @@ cmsDriver.py step2 \
     --conditions 80X_mcRun2_asymptotic_2016_v3 \
     --step RAW2DIGI,L1Reco,RECO,EI \
     --era Run2_25ns \
-    --python_filename reconstruction_cfg.py \
+    --python_filename cfg_reconstruction.py \
     --number=-1 \
     --no_exec
-
-return_value_config="$?"
-
-cmsRun reconstruction_cfg.py
-
-return_value_cmsRun="$?"
-echo "Return value from ${step} config: ${return_value_config}"
-echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
-
-# Return larger return value
-if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
-    exit "${return_value_config}"
-else
-    exit "${return_value_cmsRun}"
-fi

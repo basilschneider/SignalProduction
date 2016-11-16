@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euf -o pipefail
+
 step="MiniAOD Production"
 echo "Run ${step}."
 
@@ -14,21 +16,6 @@ cmsDriver.py step1 \
     --customise_commands "process.patTrigger.processName = cms.string('HLT2')" \
     --step PAT \
     --era Run2_2016 \
-    --python_filename miniaod_cfg.py \
+    --python_filename cfg_miniaod.py \
     --number=-1 \
     --no_exec
-
-return_value_config="$?"
-
-cmsRun miniaod_cfg.py
-
-return_value_cmsRun="$?"
-echo "Return value from ${step} config: ${return_value_config}"
-echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
-
-# Return larger return value
-if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
-    exit "${return_value_config}"
-else
-    exit "${return_value_cmsRun}"
-fi

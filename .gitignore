@@ -45,3 +45,8 @@ LHEtoAOD/CMSSW_7_1_20_patch3/src/Configuration/
 LHEtoAOD/condor/condor_output_dummy
 LHEtoAOD/condor/tarball_signal-production.tar.gz
 LHEtoAOD/condor/logs/
+LHEtoAOD/CMSSW_7_1_20_patch3/src/cfg_hadronization.py
+LHEtoAOD/CMSSW_8_0_11/src/cfg_hltresim.py
+LHEtoAOD/CMSSW_8_0_11/src/cfg_miniaod.py
+LHEtoAOD/CMSSW_8_0_3_patch2/src/cfg_digitization.py
+LHEtoAOD/CMSSW_8_0_3_patch2/src/cfg_reconstruction.py

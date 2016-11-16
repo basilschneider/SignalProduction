@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#set -euf -o pipefail
+set -euf -o pipefail
 
 nEvents="${1:--1}"
 
@@ -18,41 +18,26 @@ cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/Hadronizer_TuneCUETP
     --beamspot Realistic50ns13TeVCollision \
     --step GEN,SIM \
     --magField 38T_PostLS1 \
-    --python_filename hadronizer_cfg.py \
+    --python_filename cfg_hadronization.py \
     --number="${nEvents}" \
     --no_exec
-
-return_value_config="$?"
 
 echo -n "Adding analysis specific lines... "
 
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ 'Check:abortIfVeto = on'," hadronizer_cfg.py
+        \ \ \ \ \ \ \ \ \ \ \ \ 'Check:abortIfVeto = on'," cfg_hadronization.py
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '24:mMin = 0.1'," hadronizer_cfg.py
+        \ \ \ \ \ \ \ \ \ \ \ \ '24:mMin = 0.1'," cfg_hadronization.py
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '23:mMin = 0.1'," hadronizer_cfg.py
+        \ \ \ \ \ \ \ \ \ \ \ \ '23:mMin = 0.1'," cfg_hadronization.py
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '23:onIfAny = 11 13 15'," hadronizer_cfg.py
+        \ \ \ \ \ \ \ \ \ \ \ \ '23:onIfAny = 11 13 15'," cfg_hadronization.py
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '23:onMode = off'," hadronizer_cfg.py
+        \ \ \ \ \ \ \ \ \ \ \ \ '23:onMode = off'," cfg_hadronization.py
 
 # Filter specific lines
 sed -i "/# Production Info/i\
-        # Filter\nprocess.genlep = cms.EDFilter(\"GenParticleSelector\",\n    src = cms.InputTag(\"genParticles\"),\n    cut = cms.string(\"(abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15) && status == 1 && pt > 3 && abs(eta) < 2.5\"),\n    filter = cms.bool(True),\n)\n\nprocess.genlepfilter = cms.EDFilter(\"CandViewCountFilter\",\n    src = cms.InputTag(\"genlep\"),\n    minNumber = cms.uint32(2),\n)\n\nprocess.lepfilter = cms.Sequence(process.genlep+process.genlepfilter)\n\n" hadronizer_cfg.py
-sed -i "s/process\.pgen/&*process.lepfilter/" hadronizer_cfg.py
+        # Filter\nprocess.genlep = cms.EDFilter(\"GenParticleSelector\",\n    src = cms.InputTag(\"genParticles\"),\n    cut = cms.string(\"(abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15) && status == 1 && pt > 3 && abs(eta) < 2.5\"),\n    filter = cms.bool(True),\n)\n\nprocess.genlepfilter = cms.EDFilter(\"CandViewCountFilter\",\n    src = cms.InputTag(\"genlep\"),\n    minNumber = cms.uint32(2),\n)\n\nprocess.lepfilter = cms.Sequence(process.genlep+process.genlepfilter)\n\n" cfg_hadronization.py
+sed -i "s/process\.pgen/&*process.lepfilter/" cfg_hadronization.py
 
 echo "Done."
-
-cmsRun hadronizer_cfg.py
-
-return_value_cmsRun="$?"
-echo "Return value from ${step} config: ${return_value_config}"
-echo "Return value from ${step} cmsRun: ${return_value_cmsRun}"
-
-# Return larger return value
-if [ "${return_value_config}" -ge "${return_value_cmsRun}" ]; then
-    exit "${return_value_config}"
-else
-    exit "${return_value_cmsRun}"
-fi

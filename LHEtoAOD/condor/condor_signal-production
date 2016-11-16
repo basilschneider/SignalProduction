@@ -2,12 +2,6 @@
 
 # Condor submission script to product signal events
 
-# Exit immediataly when an error occurs
-#set -e -o pipefail
-# Set global trap that exits even when in subshell
-#set -E
-#trap '[ "$?" -ne 999 ] || exit 999' ERR
-
 # Get positional arguments
 cmssw_hadronization="${1}"
 cmssw_digitization="${2}"
@@ -61,108 +55,51 @@ if [ "$?" -ne 0 ]; then
     exit
 fi
 
-
-# - Run all steps in subshells, to not confuse different CMSSW setups
-# - Run them in a loop until either the return value is 0 or the code has run
-#   ten times, to avoid timeout errors in DAS, but possibly other errors as well
-# - If the code ran 10 times without success, throw error code 999, which
-#   terminates the script altogether (see trap above)
-#   (see also here: http://unix.stackexchange.com/a/48550/58056)
-#   For some reason, this is not working, hence we kill the process group
+# Run all steps in subshells, to not confuse different CMSSW setups
 (
-    i=0
-    while true; do
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
-        echo "Hadronization try number $(( ++i ))."
-        cd "${cmssw_hadronization}"
-        scram b ProjectRename
-        cd src
-        eval $(scram runtime -sh)
-        ./cmsDriver_hadronization
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        if [ $i -ge 10 ]; then
-            echo "All tries failed. Exit."
-            kill 0
-        fi
-    done
+    echo "Run Hadronization."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_hadronization}"
+    scram b ProjectRename
+    cd src
+    eval $(scram runtime -sh)
+    cmsRun cfg_hadronization.py
 )
 (
-    i=0
-    while true; do
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
-        echo "Digitization try number $(( ++i ))."
-        cd "${cmssw_digitization}"
-        scram b ProjectRename
-        cd src
-        eval $(scram runtime -sh)
-        ./cmsDriver_digitization
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        if [ $i -ge 10 ]; then
-            echo "All tries failed. Exit."
-            kill 0
-        fi
-    done
+    echo "Run Digitization."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_digitization}"
+    scram b ProjectRename
+    cd src
+    eval $(scram runtime -sh)
+    cmsRun cfg_digitization.py
 )
 (
-    i=0
-    while true; do
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
-        echo "Reconstruction try number $(( ++i ))."
-        cd "${cmssw_reconstruction}"
-        scram b ProjectRename
-        cd src
-        eval $(scram runtime -sh)
-        ./cmsDriver_reconstruction
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        if [ $i -ge 10 ]; then
-            echo "All tries failed. Exit."
-            kill 0
-        fi
-    done
+    echo "Run Reconstruction."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_reconstruction}"
+    scram b ProjectRename
+    cd src
+    eval $(scram runtime -sh)
+    cmsRun cfg_reconstruction.py
 )
 (
-    i=0
-    while true; do
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
-        echo "HLT Resimulation try number $(( ++i ))."
-        cd "${cmssw_hltresim}"
-        scram b ProjectRename
-        cd src
-        eval $(scram runtime -sh)
-        ./cmsDriver_hltresim
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        if [ $i -ge 10 ]; then
-            echo "All tries failed. Exit."
-            kill 0
-        fi
-    done
+    echo "Run HLT Resimulation."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_hltresim}"
+    scram b ProjectRename
+    cd src
+    eval $(scram runtime -sh)
+    cmsRun cfg_hltresim.py
 )
 (
-    i=0
-    while true; do
-        source /cvmfs/cms.cern.ch/cmsset_default.sh
-        echo "MiniAOD Production try number $(( ++i ))."
-        cd "${cmssw_miniaod}"
-        scram b ProjectRename
-        cd src
-        eval $(scram runtime -sh)
-        ./cmsDriver_miniaod
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        if [ $i -ge 10 ]; then
-            echo "All tries failed. Exit."
-            kill 0
-        fi
-    done
+    echo "Run MiniAOD Production."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_miniaod}"
+    scram b ProjectRename
+    cd src
+    eval $(scram runtime -sh)
+    cmsRun cfg_miniaod.py
 )
 
 # Copy output rootfiles to eos
@@ -180,11 +117,11 @@ done
 
 # Copy all config files into one folder and transfer to eos
 mkdir cfg
-cp "${cmssw_hadronization}"/src/hadronizer_cfg.py cfg/
-cp "${cmssw_digitization}"/src/digitization_cfg.py cfg/
-cp "${cmssw_reconstruction}"/src/reconstruction_cfg.py cfg/
-cp "${cmssw_hltresim}"/src/hltresim_cfg.py cfg/
-cp "${cmssw_miniaod}"/src/miniaod_cfg.py cfg/
+cp "${cmssw_hadronization}"/src/cfg_hadronization.py cfg/
+cp "${cmssw_digitization}"/src/cfg_digitization.py cfg/
+cp "${cmssw_reconstruction}"/src/cfg_reconstruction.py cfg/
+cp "${cmssw_hltresim}"/src/cfg_hltresim.py cfg/
+cp "${cmssw_miniaod}"/src/cfg_miniaod.py cfg/
 xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"/cfg/
 xrdcp -frs cfg root://cmseos.fnal.gov/"${eosoutdir}"/cfg/
 
