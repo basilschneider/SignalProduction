@@ -48,7 +48,7 @@ echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
 
 # Transfer lhe file
-xrdcp root://cmseos.fnal.gov/"${inputLHE}" input.lhe
+xrdcp -s root://cmseos.fnal.gov/"${inputLHE}" input.lhe
 if [ "$?" -ne 0 ]; then
     echo LHE file "${inputLHE}" not found.
     echo Abort.
