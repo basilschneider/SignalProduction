@@ -25,15 +25,9 @@ cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/Hadronizer_TuneCUETP
 echo -n "Adding analysis specific lines... "
 
 sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ 'Check:abortIfVeto = on'," cfg_hadronization.py
-sed -i "/SLHA:minMassSM/a \
         \ \ \ \ \ \ \ \ \ \ \ \ '24:mMin = 0.1'," cfg_hadronization.py
 sed -i "/SLHA:minMassSM/a \
         \ \ \ \ \ \ \ \ \ \ \ \ '23:mMin = 0.1'," cfg_hadronization.py
-sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '23:onIfAny = 11 13 15'," cfg_hadronization.py
-sed -i "/SLHA:minMassSM/a \
-        \ \ \ \ \ \ \ \ \ \ \ \ '23:onMode = off'," cfg_hadronization.py
 
 # Filter specific lines
 sed -i "/# Production Info/i\
