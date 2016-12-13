@@ -6,6 +6,7 @@ set -ef -o pipefail
 
 trap 'echo Failed to create tarball' ERR
 
+nEvents="${1:--1}"
 nameTarball=condor/tarball_signal-production.tar.gz
 
 # Delete old tarball
@@ -16,7 +17,7 @@ rm -f "${nameTarball}"
     cd CMSSW_7_1_20_patch3/src
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval $(scram runtime -sh)
-    ./cmsDriver_hadronization "${1}"
+    ./cmsDriver_hadronization "${nEvents}"
     if [ ! -f cfg_hadronization.py ]; then
         exit 1
     fi
