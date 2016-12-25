@@ -60,8 +60,10 @@ rm -f "${nameTarball}"
 )
 
 # Create new tarball
+echo -n "Create tarball... "
 tar czf \
     "${nameTarball}" \
     CMSSW_7_1_20_patch3 \
     CMSSW_8_0_11 \
     CMSSW_8_0_3_patch2
+echo "Done."
