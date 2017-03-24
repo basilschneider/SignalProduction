@@ -20,5 +20,5 @@ add process p p > ewkinos ewkinos j / excl
 add process p p > ewkinos ewkinos j j / excl
 
 #output higgsino
-output higgsino_500_80 -nojpeg
+output higgsino_200_300 -nojpeg
 
