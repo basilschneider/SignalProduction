@@ -29,9 +29,9 @@ sed -i "/SLHA:minMassSM/a \
 sed -i "/SLHA:minMassSM/a \
         \ \ \ \ \ \ \ \ \ \ \ \ '23:mMin = 0.1'," cfg_hadronization.py
 
-# Filter specific lines
-sed -i "/# Production Info/i\
-        # Filter\nprocess.genlep = cms.EDFilter(\"GenParticleSelector\",\n    src = cms.InputTag(\"genParticles\"),\n    cut = cms.string(\"(abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15) && status == 1 && pt > 3 && abs(eta) < 2.5\"),\n    filter = cms.bool(True),\n)\n\nprocess.genlepfilter = cms.EDFilter(\"CandViewCountFilter\",\n    src = cms.InputTag(\"genlep\"),\n    minNumber = cms.uint32(2),\n)\n\nprocess.lepfilter = cms.Sequence(process.genlep+process.genlepfilter)\n\n" cfg_hadronization.py
-sed -i "s/process\.pgen/&*process.lepfilter/" cfg_hadronization.py
+## Filter specific lines
+#sed -i "/# Production Info/i\
+#        # Filter\nprocess.genlep = cms.EDFilter(\"GenParticleSelector\",\n    src = cms.InputTag(\"genParticles\"),\n    cut = cms.string(\"(abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15) && status == 1 && pt > 3 && abs(eta) < 2.5\"),\n    filter = cms.bool(True),\n)\n\nprocess.genlepfilter = cms.EDFilter(\"CandViewCountFilter\",\n    src = cms.InputTag(\"genlep\"),\n    minNumber = cms.uint32(2),\n)\n\nprocess.lepfilter = cms.Sequence(process.genlep+process.genlepfilter)\n\n" cfg_hadronization.py
+#sed -i "s/process\.pgen/&*process.lepfilter/" cfg_hadronization.py
 
 echo "Done."
