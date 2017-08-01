@@ -50,3 +50,5 @@ LHEtoAOD/CMSSW_8_0_11/src/cfg_hltresim.py
 LHEtoAOD/CMSSW_8_0_11/src/cfg_miniaod.py
 LHEtoAOD/CMSSW_8_0_3_patch2/src/cfg_digitization.py
 LHEtoAOD/CMSSW_8_0_3_patch2/src/cfg_reconstruction.py
+GRIDPACKtoLHE/CMSSW_7_1_20_patch3/
+GRIDPACKtoLHE/condor/condor_output_dummy

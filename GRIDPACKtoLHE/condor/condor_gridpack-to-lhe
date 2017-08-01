@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+# Condor submission script to produce LHE files from a gridpack
+
+# Get positional arguments
+sms="${1}"
+mass="${2}"
+nEvts="${3}"
+cluster="${4}"
+process="${5}"
+seed="${process}"
+nCPUs=1
+outdir="${sms}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
+eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
+cmssw=CMSSW_7_1_20_patch3
+gridpackdir=/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/sus_sms/
+
+pwd="${PWD}"
+
+echo Hello Condor
+echo
+
+echo Date: $(date)
+echo Worker node: $(uname -a)
+echo Operating system: $(cat /etc/redhat-release)
+echo Working directory: "${pwd}"
+echo Output directory: "${outdir}"
+echo EOS output directory: "${eosoutdir}"
+echo Simplified Model: "${sms}"
+echo Mass: "${mass}"
+echo CMSSW Release: "${cmssw}"
+echo Gridpack directory: "${gridpackdir}"
+echo Number of events: "${nEvts}"
+echo Seed: "${seed}"
+echo Number of CPUs: "${nCPUs}"
+echo Process number: "${process}"
+echo Cluster number: "${cluster}"
+echo
+
+# Create output dummy file that can be transferred back
+# HTCondor has a bug, it always needs to transfer at least one file back
+# This can cause it to overwrite stuff, so we just create a dummy file, that
+# happily can be transferred and overwritten
+touch condor_output_dummy
+
+# Set up CMSSW release
+. /cvmfs/cms.cern.ch/cmsset_default.sh
+export SCRAM_ARCH=slc6_amd64_gcc481
+eval $(scramv1 project CMSSW "${cmssw}")
+cd "${cmssw}"/src
+eval $(scramv1 runtime -sh)
+
+# Unpack gridpack
+tar xf "${gridpackdir}"/"${sms}"/*-"${mass}"_*.tar.xz
+
+# Produce events
+./runcmsgrid.sh "${nEvts}" "${seed}" "${nCPUs}"
+
+xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"
+for file in events_presys.lhe syscalc_card.dat cmsgrid_final.lhe; do
+    xrdcp -fs "${file}" root://cmseos.fnal.gov/"${eosoutdir}"/
+done
+
+echo Bye.
