@@ -2,7 +2,7 @@
 
 # Create tarball for signal production
 
-set -ef -o pipefail
+set -e -o pipefail
 
 trap 'echo Failed to create tarball' ERR
 
@@ -61,9 +61,5 @@ rm -f "${nameTarball}"
 
 # Create new tarball
 echo -n "Create tarball... "
-tar czf \
-    "${nameTarball}" \
-    CMSSW_7_1_20_patch3 \
-    CMSSW_8_0_11 \
-    CMSSW_8_0_3_patch2
+tar czf "${nameTarball}" CMSSW_*/src/cfg_*
 echo "Done."

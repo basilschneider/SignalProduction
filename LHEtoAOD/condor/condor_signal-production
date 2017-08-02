@@ -14,7 +14,7 @@ process="${8}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
 #inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d" "${process}").lhe
-inputLHE=/eos/uscms/store/user/bschneid/analysis/signal/SMS-C1N2_600/c2234001/$(printf "%05d" "${process}")/cmsgrid_final.lhe
+inputLHE=/eos/uscms/store/user/bschneid/analysis/signal/SMS-C1N2_600/c2234001/p$(printf "%05d" "${process}")/cmsgrid_final.lhe
 
 pwd="${PWD}"
 
@@ -45,6 +45,25 @@ echo
 # happily can be transferred and overwritten
 touch condor_output_dummy
 
+# Set up CMSSW releases
+echo Set up CMSSW releases
+for cmssw in "${cmssw_hadronization}" "${cmssw_digitization}" \
+    "${cmssw_reconstruction}" "${cmssw_hltresim}" "${cmssw_miniaod}"; do
+    # If CMSSW already set up, skip it, otherwise set it up in subshell
+    if [ -d "${cmssw}" ]; then
+        continue
+    fi
+    (
+        . /cvmfs/cms.cern.ch/cmsset_default.sh
+        if [ "${cmssw:0:7}" == CMSSW_7 ]; then
+            export SCRAM_ARCH=slc6_amd64_gcc481
+        else
+            export SCRAM_ARCH=slc6_amd64_gcc493
+        fi
+        eval $(scramv1 project CMSSW "${cmssw}")
+    )
+done
+
 echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
 
@@ -61,7 +80,6 @@ fi
     echo "Run Hadronization."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     cd "${cmssw_hadronization}"
-    scram b ProjectRename
     cd src
     eval $(scram runtime -sh)
     cmsRun cfg_hadronization.py
@@ -70,7 +88,6 @@ fi
     echo "Run Digitization."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     cd "${cmssw_digitization}"
-    scram b ProjectRename
     cd src
     eval $(scram runtime -sh)
     cmsRun cfg_digitization.py
@@ -79,7 +96,6 @@ fi
     echo "Run Reconstruction."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     cd "${cmssw_reconstruction}"
-    scram b ProjectRename
     cd src
     eval $(scram runtime -sh)
     cmsRun cfg_reconstruction.py
@@ -88,7 +104,6 @@ fi
     echo "Run HLT Resimulation."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     cd "${cmssw_hltresim}"
-    scram b ProjectRename
     cd src
     eval $(scram runtime -sh)
     cmsRun cfg_hltresim.py
@@ -97,7 +112,6 @@ fi
     echo "Run MiniAOD Production."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     cd "${cmssw_miniaod}"
-    scram b ProjectRename
     cd src
     eval $(scram runtime -sh)
     cmsRun cfg_miniaod.py
