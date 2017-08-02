@@ -13,7 +13,8 @@ cluster="${7}"
 process="${8}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/sos/"${outdir}"
-inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d\n" "${process}").lhe
+#inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d" "${process}").lhe
+inputLHE=/eos/uscms/store/user/bschneid/analysis/signal/SMS-C1N2_600/c2234000/$(printf "%05d" "${process}")/cmsgrid_final.lhe
 
 pwd="${PWD}"
 
