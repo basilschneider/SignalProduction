@@ -13,4 +13,4 @@ Output = logs/condor_$(Cluster).$(Process).stdout
 Error = logs/condor_$(Cluster).$(Process).stderr
 Log = logs/condor_$(Cluster).$(Process).condor
 Arguments = CMSSW_7_1_20_patch3 CMSSW_8_0_3_patch2 CMSSW_8_0_3_patch2 CMSSW_8_0_11 CMSSW_8_0_11 TChiWZ_600_x $(Cluster) $(Process)
-Queue 100
+Queue 1000

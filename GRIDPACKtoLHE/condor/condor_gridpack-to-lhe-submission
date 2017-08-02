@@ -12,5 +12,5 @@ x509userproxy = $ENV(X509_USER_PROXY)
 Output = logs/condor_$(Cluster).$(Process).stdout
 Error = logs/condor_$(Cluster).$(Process).stderr
 Log = logs/condor_$(Cluster).$(Process).condor
-Arguments = SMS-C1N2 600 1000 $(Cluster) $(Process)
-Queue 100
+Arguments = SMS-C1N2 600 100 $(Cluster) $(Process)
+Queue 1000
