@@ -2,15 +2,14 @@
 
 # Condor submission script to product signal events
 
+set -ef -o pipefail
+
 # Get positional arguments
-cmssw_hadronization="${1}"
-cmssw_digitization="${2}"
-cmssw_reconstruction="${3}"
-cmssw_hltresim="${4}"
-cmssw_miniaod="${5}"
-name="${6}"
-cluster="${7}"
-process="${8}"
+cmssw_generation="${1}"
+cmssw_miniaod="${2}"
+name="${3}"
+cluster="${4}"
+process="${5}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
 #inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d" "${process}").lhe
@@ -32,10 +31,11 @@ echo Process number: "${process}"
 echo Cluster number: "${cluster}"
 echo
 
-echo CMSSW version for hadronization: "${cmssw_hadronization}"
-echo CMSSW version for digitization: "${cmssw_digitization}"
-echo CMSSW version for reconstruction: "${cmssw_reconstruction}"
-echo CMSSW version for hltresim: "${cmssw_hltresim}"
+echo CMSSW version for generation to hlt: "${cmssw_generation}"
+#echo CMSSW version for hadronization: "${cmssw_hadronization}"
+#echo CMSSW version for digitization: "${cmssw_digitization}"
+#echo CMSSW version for reconstruction: "${cmssw_reconstruction}"
+#echo CMSSW version for hltresim: "${cmssw_hltresim}"
 echo CMSSW version for miniaod: "${cmssw_miniaod}"
 echo
 
@@ -47,19 +47,14 @@ touch condor_output_dummy
 
 # Set up CMSSW releases
 echo Set up CMSSW releases
-for cmssw in "${cmssw_hadronization}" "${cmssw_digitization}" \
-    "${cmssw_reconstruction}" "${cmssw_hltresim}" "${cmssw_miniaod}"; do
+for cmssw in "${cmssw_generation}" "${cmssw_miniaod}"; do
     # If CMSSW already set up, skip it, otherwise set it up in subshell
     if [ -d "${cmssw}" ]; then
         continue
     fi
     (
         . /cvmfs/cms.cern.ch/cmsset_default.sh
-        if [ "${cmssw:0:7}" == CMSSW_7 ]; then
-            export SCRAM_ARCH=slc6_amd64_gcc481
-        else
-            export SCRAM_ARCH=slc6_amd64_gcc493
-        fi
+        export SCRAM_ARCH=slc6_amd64_gcc530
         eval $(scramv1 project CMSSW "${cmssw}")
     )
 done
@@ -77,36 +72,12 @@ fi
 
 # Run all steps in subshells, to not confuse different CMSSW setups
 (
-    echo "Run Hadronization."
+    echo "Run Generation to HLT."
     source /cvmfs/cms.cern.ch/cmsset_default.sh
-    cd "${cmssw_hadronization}"
+    cd "${cmssw_generation}"
     cd src
     eval $(scram runtime -sh)
-    cmsRun cfg_hadronization.py
-)
-(
-    echo "Run Digitization."
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    cd "${cmssw_digitization}"
-    cd src
-    eval $(scram runtime -sh)
-    cmsRun cfg_digitization.py
-)
-(
-    echo "Run Reconstruction."
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    cd "${cmssw_reconstruction}"
-    cd src
-    eval $(scram runtime -sh)
-    cmsRun cfg_reconstruction.py
-)
-(
-    echo "Run HLT Resimulation."
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    cd "${cmssw_hltresim}"
-    cd src
-    eval $(scram runtime -sh)
-    cmsRun cfg_hltresim.py
+    cmsRun cfg_gensimdigirecohlt.py
 )
 (
     echo "Run MiniAOD Production."
@@ -124,7 +95,7 @@ xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"
 for rootfile in evts_8aod.root; do
     echo Copy rootfile "${rootfile}".
     # Since copying to eos often fails for no obvious reason, brute force the copy
-    for i in {1..100}; do
+    for i in {1..10}; do
         xrdcp -fs "${rootfile}" root://cmseos.fnal.gov/"${eosoutdir}" \
             && break \
             || echo xrdcp try "${i}" for file "${rootfile}" failed.
@@ -133,10 +104,7 @@ done
 
 # Copy all config files into one folder and transfer to eos
 mkdir cfg
-cp "${cmssw_hadronization}"/src/cfg_hadronization.py cfg/
-cp "${cmssw_digitization}"/src/cfg_digitization.py cfg/
-cp "${cmssw_reconstruction}"/src/cfg_reconstruction.py cfg/
-cp "${cmssw_hltresim}"/src/cfg_hltresim.py cfg/
+cp "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py cfg/
 cp "${cmssw_miniaod}"/src/cfg_miniaod.py cfg/
 xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"/cfg/
 xrdcp -frs cfg root://cmseos.fnal.gov/"${eosoutdir}"/cfg/

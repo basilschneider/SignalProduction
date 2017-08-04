@@ -3,7 +3,7 @@
 set -euf -o pipefail
 
 step="MiniAOD Production"
-echo "Run ${step}."
+echo "Run steps ${step}."
 
 cmsDriver.py step1 \
     --filein file:../../evts_7hlt.root \
@@ -11,11 +11,12 @@ cmsDriver.py step1 \
     --mc \
     --eventcontent MINIAODSIM \
     --runUnscheduled \
+    --fast \
     --datatier MINIAODSIM \
-    --conditions 80X_mcRun2_asymptotic_v14 \
-    --customise_commands "process.patTrigger.processName = cms.string('HLT2')" \
+    --conditions 80X_mcRun2_asymptotic_2016_miniAODv2_v0 \
     --step PAT \
-    --era Run2_2016 \
+    --era Run2_25ns \
+    --customise Configuration/DataProcessing/Utils.addMonitoring \
     --python_filename cfg_miniaod.py \
-    --number=-1 \
+    --number -1 \
     --no_exec

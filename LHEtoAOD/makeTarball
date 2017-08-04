@@ -14,43 +14,16 @@ rm -f "${nameTarball}"
 
 # Invoke each cmsDriver command to get the configs
 (
-    cd CMSSW_7_1_20_patch3/src
+    cd CMSSW_8_0_10/src
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval $(scram runtime -sh)
-    ./cmsDriver_hadronization "${nEvents}"
-    if [ ! -f cfg_hadronization.py ]; then
+    ./cmsDriver_gensimdigirecohlt "${nEvents}"
+    if [ ! -f cfg_gensimdigirecohlt.py ]; then
         exit 1
     fi
 )
 (
-    cd CMSSW_8_0_3_patch2/src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_digitization
-    if [ ! -f cfg_digitization.py ]; then
-        exit 1
-    fi
-)
-(
-    cd CMSSW_8_0_3_patch2/src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_reconstruction
-    if [ ! -f cfg_reconstruction.py ]; then
-        exit 1
-    fi
-)
-(
-    cd CMSSW_8_0_11/src
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    eval $(scram runtime -sh)
-    ./cmsDriver_hltresim
-    if [ ! -f cfg_hltresim.py ]; then
-        exit 1
-    fi
-)
-(
-    cd CMSSW_8_0_11/src
+    cd CMSSW_8_0_5_patch1/src
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval $(scram runtime -sh)
     ./cmsDriver_miniaod
