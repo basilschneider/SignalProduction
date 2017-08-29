@@ -11,9 +11,10 @@ process="${5}"
 seed="${process}"
 nCPUs=1
 outdir="${sms}"_"${mass}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
-eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
+eosoutdir=/eos/uscms/store/user/bschneid/analysis/dm/signal/"${outdir}"
 cmssw=CMSSW_7_1_20_patch3
-gridpackdir=/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/sus_sms/
+#gridpackdir=/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/sus_sms/
+gridpackdir=/eos/uscms/store/user/sdogra/
 
 pwd="${PWD}"
 
@@ -51,7 +52,23 @@ cd "${cmssw}"/src
 eval $(scramv1 runtime -sh)
 
 # Unpack gridpack
-tar xf "${gridpackdir}"/"${sms}"/*-"${mass}"_*.tar.xz
+# Check first if sample is on eos
+if [ "${gridpackdir:0:8}" == /eos/cms ]; then
+    # CERN eos
+    xrdcp \
+        root://eoscms.cern.ch/"${gridpackdir}"/"${sms}"/"${mass}" \
+        gridpack.tar.xz
+    tar xf gridpack.tar.xz
+elif [ "${gridpackdir:0:10}" == /eos/uscms ]; then
+    # FNAL eos
+    xrdcp \
+        root://cmseos.fnal.gov/"${gridpackdir}"/"${sms}"/"${mass}" \
+        gridpack.tar.xz
+    tar xf gridpack.tar.xz
+else
+    # Local
+    tar xf "${gridpackdir}"/"${sms}"/*-"${mass}"_*.tar.xz
+fi
 
 # Produce events
 ./runcmsgrid.sh "${nEvts}" "${seed}" "${nCPUs}"

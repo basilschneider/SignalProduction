@@ -12,5 +12,7 @@ x509userproxy = $ENV(X509_USER_PROXY)
 Output = logs/condor_$(Cluster).$(Process).stdout
 Error = logs/condor_$(Cluster).$(Process).stderr
 Log = logs/condor_$(Cluster).$(Process).condor
-Arguments = SMS-C1N2 600 100 $(Cluster) $(Process)
-Queue 1000
+#Arguments = SMS-C1N2 600 100 $(Cluster) $(Process)
+#Queue 1000
+Arguments = grippacks Vector_MonoTop_Leptonic_NLO_Mphi-1000_Mchi-200_gSM-0p25_gDM-1p0_13TeV-madgraph_tarball.tar.xz 3 $(Cluster) $(Process)
+Queue 1
