@@ -20,3 +20,4 @@ LHEtoAOD/condor/tarball_signal-production.tar.gz
 LHEtoAOD/condor/logs/
 GRIDPACKtoLHE/CMSSW_*/
 GRIDPACKtoLHE/condor/condor_output_dummy
+GRIDPACKtoLHE/condor/logs/
