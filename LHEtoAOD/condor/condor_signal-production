@@ -10,6 +10,8 @@ cmssw_miniaod="${2}"
 name="${3}"
 cluster="${4}"
 process="${5}"
+runnumber="$(( ${process}+1 ))"
+lumisection="${cluster}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
 eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
 #inputLHE=/eos/uscms/store/user/bschneid/analysis/sos/lhe/"${name}"/input$(printf "%05d" "${process}").lhe
@@ -23,12 +25,15 @@ echo
 echo Date: $(date)
 echo Worker node: $(uname -a)
 echo Operating system: $(cat /etc/redhat-release)
+echo Name: "${name}"
+echo Run number: "${runnumber}"
+echo Lumi section: "${lumisection}"
 echo Working directory: "${pwd}"
 echo Output directory: "${outdir}"
 echo EOS output directory: "${eosoutdir}"
 echo Input LHE file: "${inputLHE}"
-echo Process number: "${process}"
 echo Cluster number: "${cluster}"
+echo Process number: "${process}"
 echo
 
 echo CMSSW version for generation to hlt: "${cmssw_generation}"
@@ -61,6 +66,14 @@ done
 
 echo Unpack tarball
 tar xf tarball_signal-production.tar.gz
+
+echo Set unique run number and lumi section
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo "process.source.firstRun = cms.untracked.uint32("${runnumber}")" \
+    >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo "process.source.firstLuminosityBlock = cms.untracked.uint32("${lumisection}")" \
+    >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
 
 # Transfer lhe file
 xrdcp -s root://cmseos.fnal.gov/"${inputLHE}" input.lhe
