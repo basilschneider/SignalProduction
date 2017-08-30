@@ -7,9 +7,10 @@ set -ef -o pipefail
 # Get positional arguments
 cmssw_generation="${1}"
 cmssw_miniaod="${2}"
-name="${3}"
-cluster="${4}"
-process="${5}"
+massN1="${3}"
+name="${4}"
+cluster="${5}"
+process="${6}"
 runnumber="$(( ${process}+1 ))"
 lumisection="${cluster}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
@@ -75,12 +76,22 @@ echo "process.source.firstRun = cms.untracked.uint32("${runnumber}")" \
 echo "process.source.firstLuminosityBlock = cms.untracked.uint32("${lumisection}")" \
     >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
 
-# Transfer lhe file
+echo Transfer lhe file
 xrdcp -s root://cmseos.fnal.gov/"${inputLHE}" input.lhe
 if [ "$?" -ne 0 ]; then
     echo LHE file "${inputLHE}" not found.
     echo Abort.
-    exit
+    exit 1
+fi
+
+massOld=$(awk '/^      1000022/ {print($2)}' input.lhe)
+sed -i "/      1000022 1.000000e+05 #   mneu1/s/1.000000e+05/${massN1}/" input.lhe
+massNew=$(awk '/^      1000022/ {print($2)}' input.lhe)
+echo Set N1 mass from "${massOld}" to "${massNew}"
+if [ "${massOld}" == "${massNew}" ]; then
+    echo Old mass and new mass are the same.
+    echo Abort.
+    exit 2
 fi
 
 # Run all steps in subshells, to not confuse different CMSSW setups
