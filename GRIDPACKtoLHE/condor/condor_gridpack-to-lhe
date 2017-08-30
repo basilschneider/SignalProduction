@@ -11,10 +11,11 @@ process="${5}"
 seed="${process}"
 nCPUs=1
 outdir="${sms}"_"${mass}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
-eosoutdir=/eos/uscms/store/user/bschneid/analysis/dm/signal/"${outdir}"
+eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
+#eosoutdir=/eos/uscms/store/user/bschneid/analysis/dm/signal/"${outdir}"
 cmssw=CMSSW_7_1_20_patch3
-#gridpackdir=/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/sus_sms/
-gridpackdir=/eos/uscms/store/user/sdogra/
+gridpackdir=/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/sus_sms/
+#gridpackdir=/eos/uscms/store/user/sdogra/
 
 pwd="${PWD}"
 
