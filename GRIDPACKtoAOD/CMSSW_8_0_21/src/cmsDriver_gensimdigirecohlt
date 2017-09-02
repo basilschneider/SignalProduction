@@ -7,6 +7,8 @@ nEvents="${1:--1}"
 step="Generation to HLT"
 echo "Run steps ${step}."
 
+genfrag=Configuration/GenProduction/python/SUS-RunIISummer16FSPremix-00001-fragment.py
+
 # For TChiWZ
 # From https://cms-pdmv.cern.ch/mcm/public/restapi/requests/get_setup/SUS-RunIISummer16FSPremix-00001
 # and https://cms-pdmv.cern.ch/mcm/requests?dataset_name=SMS-TChiWZ_ZToLL_mZMin-0p1_TuneCUETP8M1_13TeV-madgraphMLM-pythia8&page=0&shown=127
@@ -16,15 +18,20 @@ curl \
     https://cms-pdmv.cern.ch/mcm/public/restapi/requests/get_fragment/SUS-RunIISummer16FSPremix-00001 \
     --retry 2 \
     --create-dirs \
-    -o Configuration/GenProduction/python/SUS-RunIISummer16FSPremix-00001-fragment.py 
+    -o "${genfrag}"
 
-if [ ! -s Configuration/GenProduction/python/SUS-RunIISummer16FSPremix-00001-fragment.py ]; then
+if [ ! -s "${genfrag}" ]; then
     echo "Could not download gen fragment."
     echo "Exit."
     exit 1
 fi
 
-cmsDriver.py Configuration/GenProduction/python/SUS-RunIISummer16FSPremix-00001-fragment.py \
+# Global modifications to generator fragment
+# Remove filter
+sed -i '/23:onMode/d' "${genfrag}"
+sed -i '/23:onIfAny/d' "${genfrag}"
+
+cmsDriver.py "${genfrag}" \
     --fileout file:../../evts_7hlt.root \
     --mc \
     --pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer16FSPremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v4-v1/GEN-SIM-DIGI-RAW" \
