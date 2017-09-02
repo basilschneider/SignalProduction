@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euf -o pipefail
+
+step="MiniAOD Production"
+echo "Run steps ${step}."
+
+cmsDriver.py step1 \
+    --filein file:../../evts_7hlt.root \
+    --fileout file:../../evts_8aod.root \
+    --mc \
+    --eventcontent MINIAODSIM \
+    --runUnscheduled \
+    --fast \
+    --datatier MINIAODSIM \
+    --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 \
+    --step PAT \
+    --era Run2_2016 \
+    --python_filename cfg_miniaod.py \
+    --customise Configuration/DataProcessing/Utils.addMonitoring \
+    --number -1 \
+    --no_exec

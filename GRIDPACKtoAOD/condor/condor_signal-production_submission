@@ -1,0 +1,16 @@
+universe = vanilla
+Executable = condor_signal-production
+Requirements = OpSys == "LINUX" && (Arch != "DUMMY" )
+request_disk = 10000000
+request_memory = 3000
+Transfer_Input_Files = condor_signal-production, tarball_signal-production.tar.gz
+notification = Never
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT
+Transfer_Output_Files = condor_output_dummy
+x509userproxy = $ENV(X509_USER_PROXY)
+Output = logs/condor_$(Cluster).$(Process).stdout
+Error = logs/condor_$(Cluster).$(Process).stderr
+Log = logs/condor_$(Cluster).$(Process).condor
+Arguments = CMSSW_8_0_21 CMSSW_8_0_21 0 TChiWZ_600_0 $(Cluster) $(Process)
+Queue 2

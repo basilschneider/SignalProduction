@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+# Condor submission script to product signal events
+
+set -ef -o pipefail
+
+# Get positional arguments
+cmssw_generation="${1}"
+cmssw_miniaod="${2}"
+massN1="${3}"
+name="${4}"
+cluster="${5}"
+process="${6}"
+runnumber="$(( ${process}+1 ))"
+lumisection="${cluster}"
+outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
+eosoutdir=/eos/uscms/store/user/bschneid/analysis/signal/"${outdir}"
+
+pwd="${PWD}"
+
+echo Hello Condor
+echo
+
+echo Date: $(date)
+echo Worker node: $(uname -a)
+echo Operating system: $(cat /etc/redhat-release)
+echo Name: "${name}"
+echo Run number: "${runnumber}"
+echo Lumi section: "${lumisection}"
+echo Working directory: "${pwd}"
+echo Output directory: "${outdir}"
+echo EOS output directory: "${eosoutdir}"
+echo Cluster number: "${cluster}"
+echo Process number: "${process}"
+echo
+
+echo CMSSW version for generation to hlt: "${cmssw_generation}"
+#echo CMSSW version for hadronization: "${cmssw_hadronization}"
+#echo CMSSW version for digitization: "${cmssw_digitization}"
+#echo CMSSW version for reconstruction: "${cmssw_reconstruction}"
+#echo CMSSW version for hltresim: "${cmssw_hltresim}"
+echo CMSSW version for miniaod: "${cmssw_miniaod}"
+echo
+
+# Create output dummy file that can be transferred back
+# HTCondor has a bug, it always needs to transfer at least one file back
+# This can cause it to overwrite stuff, so we just create a dummy file, that
+# happily can be transferred and overwritten
+touch condor_output_dummy
+
+# Set up CMSSW releases
+echo Set up CMSSW releases
+for cmssw in "${cmssw_generation}" "${cmssw_miniaod}"; do
+    # If CMSSW already set up, skip it, otherwise set it up in subshell
+    if [ -d "${cmssw}" ]; then
+        continue
+    fi
+    (
+        . /cvmfs/cms.cern.ch/cmsset_default.sh
+        export SCRAM_ARCH=slc6_amd64_gcc530
+        scram p CMSSW "${cmssw}"
+    )
+done
+
+# Unpack configs
+echo Unpack tarball
+tar xf tarball_signal-production.tar.gz
+
+# Modify configs
+echo Set unique run number and lumi section
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo "process.source.firstRun = cms.untracked.uint32(${runnumber})" \
+    >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo "process.source.firstLuminosityBlock = cms.untracked.uint32(${lumisection})" \
+    >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo Set random seed
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+echo "process.RandomNumberGeneratorService.generator.initialSeed = ${process}" \
+    >> "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py
+
+# Run all steps in subshells, to not confuse different CMSSW setups
+(
+    echo "Run Generation to HLT."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_generation}"/src
+    eval $(scram runtime -sh)
+    cmsRun cfg_gensimdigirecohlt.py
+)
+(
+    echo "Run MiniAOD Production."
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    cd "${cmssw_miniaod}"/src
+    eval $(scram runtime -sh)
+    cmsRun cfg_miniaod.py
+)
+
+# Copy output rootfiles to eos
+echo Copy output to eos.
+xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"
+#for rootfile in *.root; do
+for rootfile in evts_8aod.root; do
+    echo Copy rootfile "${rootfile}".
+    # Since copying to eos often fails for no obvious reason, brute force the copy
+    for i in {1..10}; do
+        xrdcp -fs "${rootfile}" root://cmseos.fnal.gov/"${eosoutdir}" \
+            && break \
+            || echo xrdcp try "${i}" for file "${rootfile}" failed.
+    done
+done
+
+# Copy all config files into one folder and transfer to eos
+mkdir cfg
+cp "${cmssw_generation}"/src/cfg_gensimdigirecohlt.py cfg/
+cp "${cmssw_miniaod}"/src/cfg_miniaod.py cfg/
+xrdfs root://cmseos.fnal.gov/ mkdir -p "${eosoutdir}"/cfg/
+xrdcp -frs cfg root://cmseos.fnal.gov/"${eosoutdir}"/cfg/
+
+echo Bye.

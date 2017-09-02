@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Create tarball for signal production
+
+set -e -o pipefail
+
+trap 'echo Failed to create tarball' ERR
+
+nEvents="${1:--1}"
+nameTarball=condor/tarball_signal-production.tar.gz
+
+# Delete old tarball
+rm -f "${nameTarball}"
+
+# Invoke each cmsDriver command to get the configs
+(
+    cd CMSSW_8_0_21/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_gensimdigirecohlt "${nEvents}"
+    if [ ! -f cfg_gensimdigirecohlt.py ]; then
+        exit 1
+    fi
+)
+(
+    cd CMSSW_8_0_21/src
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval $(scram runtime -sh)
+    ./cmsDriver_miniaod
+    if [ ! -f cfg_miniaod.py ]; then
+        exit 1
+    fi
+)
+
+# Create new tarball
+echo -n "Create tarball... "
+tar czf "${nameTarball}" CMSSW_*/src/cfg_*
+echo "Done."
