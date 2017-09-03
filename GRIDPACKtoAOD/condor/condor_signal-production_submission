@@ -12,5 +12,5 @@ x509userproxy = $ENV(X509_USER_PROXY)
 Output = logs/condor_$(Cluster).$(Process).stdout
 Error = logs/condor_$(Cluster).$(Process).stderr
 Log = logs/condor_$(Cluster).$(Process).condor
-Arguments = CMSSW_8_0_21 CMSSW_8_0_21 0 TChiWZ_600_0 $(Cluster) $(Process)
-Queue 2
+Arguments = CMSSW_8_0_21 CMSSW_8_0_21 TChiWZ_600_0 $(Cluster) $(Process)
+Queue 100

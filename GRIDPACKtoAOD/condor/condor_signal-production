@@ -7,10 +7,9 @@ set -ef -o pipefail
 # Get positional arguments
 cmssw_generation="${1}"
 cmssw_miniaod="${2}"
-massN1="${3}"
-name="${4}"
-cluster="${5}"
-process="${6}"
+name="${3}"
+cluster="${4}"
+process="${5}"
 runnumber="$(( ${process}+1 ))"
 lumisection="${cluster}"
 outdir="${name}"/c"${cluster}"/p"$(printf "%05d\n" "${process}")"
