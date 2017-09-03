@@ -44,7 +44,7 @@ cmsDriver.py "${genfrag}" \
     --datatier AODSIM \
     --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 \
     --beamspot Realistic50ns13TeVCollision \
-    --customise_commands "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)" \
+    --customise_commands "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(2000)" \
     --step GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@fake1 \
     --datamix PreMix \
     --era Run2_2016 \
