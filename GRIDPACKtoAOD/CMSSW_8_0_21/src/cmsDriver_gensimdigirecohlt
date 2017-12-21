@@ -32,7 +32,7 @@ sed -i '/23:onMode/d' "${genfrag}"
 sed -i '/23:onIfAny/d' "${genfrag}"
 
 # Set mass points
-sed -i '/for col in cols: mpoints.extend(col)/ampoints=[[600,0,50]]\nprint "Points to run:", mpoints' "${genfrag}"
+sed -i '/for col in cols: mpoints.extend(col)/ampoints=[[500,0,50]]\nprint "Points to run:", mpoints' "${genfrag}"
 
 cmsDriver.py "${genfrag}" \
     --fileout file:../../evts_7hlt.root \
